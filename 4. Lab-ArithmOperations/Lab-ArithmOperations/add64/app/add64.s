@@ -1,7 +1,7 @@
 ; ------------------------------------------------------------------
 ; --  _____       ______  _____                                    -
 ; -- |_   _|     |  ____|/ ____|                                   -
-; --   | |  _ __ | |__  | (___    Institute of Embedded Systems    -
+; --   | |  _  | |  | (___    Institute of Embedded Systems    -
 ; --   | | | '_ \|  __|  \___ \   Zurich University of             -
 ; --  _| |_| | | | |____ ____) |  Applied Sciences                 -
 ; -- |_____|_| |_|______|_____/   8401 Winterthur, Switzerland     -
@@ -28,6 +28,7 @@ ADDR_LCD_BLUE               EQU     0x60000344
 ADDR_LCD_BIN                EQU     0x60000330
 MASK_KEY_T0                 EQU     0x00000001
 BACKLIGHT_FULL              EQU     0xffff
+MY_CONST                    EQU     0x00
 
 ; ------------------------------------------------------------------
 ; -- myCode
@@ -38,52 +39,30 @@ main    PROC
         EXPORT main
 
 user_prog
-        LDR     R7, =ADDR_LCD_RED              ; load base address of pwm blue
+        LDR     R7, =ADDR_LCD_BLUE              ; load base address of pwm blue
         LDR     R6, =BACKLIGHT_FULL             ; backlight full blue
         STRH    R6, [R7]                        ; write pwm register
 
         LDR     R0, =0                          ; lower 32 bits of total sum
         LDR     R1, =0                          ; higher 32 bits of total sum
 endless
-        
-		BL      waitForKey                      ; wait for key T0 to be pressed
-		; ---------------------------------
-		; Load address of the first register in the LCD display
-        LDR      R7, =ADDR_LCD_BIN
-		; Store the first 32 bits at position 0
-        STR      R0, [R7, #0]
-		; Store the second 32 bits at position 4,
-        ; because every "position" in the LCD can store 8 bits
-        ; --> 4 x 8 bits = 32 bits that were se in the previous line
-        STR      R1, [R7, #4]
-		; ---------------------------------
-		; ---------------------------------
-		; Because ADDR was defined using EQU
-        ; we don't need to use the equal sign
-        ; beause the compiler will put EQU values
-        ; automatically into a literal pool that he creates
+        BL      waitForKey                      ; wait for key T0 to be pressed
+
+        ; STUDENTS: To be programmed
         LDR R2, =ADDR_DIP_SWITCH_31_0
         LDR R3, [R2]
-		LDR R4, =0 ; set 0 to R4 
-		; MOVS R4, #0 ; alternative to above line
-		
-		; ---------------------------------
-		; ---------------------------------
-		; According to https://www.keil.com/support/man/docs/armasm/armasm_dom1361289861747.htm
-        ; This is how you add stuff to a 64 bit integer
-        ; These two instructions add a 64-bit integer contained in R2
-        ; and R3 to another 64-bit integer contained in R0 and R1,
-        ; and place the result in R4 and R5.
-        ; ADDS    r4, r0, r2    ; adding the least significant words
-        ; ADC     r5, r1, r3    ; adding the most significant words
-        ADDS R0, R0, R3 ; adding the least significant words
-        ; Because we are only adding a 32 bit value to our 64 bit integer
-        ; we don't need to add anything to the second part of our integer value
-        ; this addds the carry
-        ADCS R1, R4 ; adding the most significant words
-		; ---------------------------------
-		; ---------------------------------
-		
+        LDR R2, =MY_CONST 
+        
+        ADDS R0, R0, R3
+        ADCS R1, R1, R2
+
+        LDR R5, =ADDR_LCD_BIN
+        STR R0, [R5] 
+        STR R1, [R5, #4]
+
+
+
+        ; END: To be programmed
         B       endless
         ALIGN
 

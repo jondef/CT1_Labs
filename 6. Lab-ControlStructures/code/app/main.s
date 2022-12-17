@@ -32,7 +32,7 @@ NR_CASES        		EQU     0xB
 BITMASK_LOWER_NIBBLE    EQU     0x0F
 MY_CONST_FFFF			EQU		0xFFFF
 
-jump_table  DCD case_dark, case_add, case_subs, case_mul, case_and, case_or, case_xor, case_not, case_nand, case_nor, case_xnor, case_default 
+jump_table  DCD case_0, case_1, case_2, case_3, case_4, case_5, case_6, case_7, case_8, case_9, case_a, case_default    ; ordered table containing the labels of all cases
                 ; STUDENTS: To be programmed 
 
                 ; END: To be programmed
@@ -53,9 +53,7 @@ read_dipsw      ; Read operands into R0 and R1 and display on LEDs
 				
 				LDR R0, =ADDR_DIP_SWITCH_15_0
 				LDRH R0, [R0]
-				
-				;Copy R0 into R7 for displaying only
-				MOVS R7, R0
+				MOVS R7, R0 ;copy R0 into R7 for displaying only
 				LSRS R0, #8
 
                 LDR R2, =ADDR_LED_15_0
@@ -68,7 +66,7 @@ read_hexsw      ; Read operation into R2 and display on 7seg.
 
                 LDR R3, =ADDR_HEX_SWITCH
                 LDRB R3, [R3]
-                LDR R7, =BITMASK_LOWER_NIBBLE
+                LDR R7, =BITMASK_LOWER_NIBBLE ;bitmask that shit
                 ANDS R3, R3, R7
 
                 LDR R4, =ADDR_7_SEG_BIN_DS1_0
@@ -86,6 +84,8 @@ case_switch     ; Implement switch statement as shown on lecture slide
 				LDR R7, =jump_table
 				LDR R7, [R7, R3]
 				BX R7
+
+
                 ; END: To be programmed
 
 
@@ -97,48 +97,52 @@ case_switch     ; Implement switch statement as shown on lecture slide
 
 ; STUDENTS: To be programmed
 
-case_dark
+case_0 ;all dark
                 LDR  R0, =0
                 B    display_result  
-case_add
+case_1 ;add
                 ADDS R0, R0, R1
                 B    display_result
-case_subs
+case_2 ;subtract op1 - op2
                 SUBS R0, R0, R1
                 B    display_result
-case_mul
+case_3 ;multiply (unsigned)
 				MULS R0, R1, R0
 				B	 display_result
-case_and
+case_4 ;logical AND
 				ANDS R0, R0, R1
 				B    display_result 
-case_or
+case_5 ;OR
 				ORRS R0, R0, R1
 				B    display_result 
-case_xor
+case_6 ;XOR
 				EORS R0, R0, R1
 				B    display_result 
-case_not
+case_7 ;NOT (op 1)
 				MOVS R7, #0xFF
 				EORS R0, R0, R7
 				B    display_result 
-case_nand
+case_8 ;NAND
+				;!(op1 & op2) == !op1 OR !op2
 				MOVS R7, #0xFF
 				EORS R0, R0, R7
 				EORS R1, R1, R7
 				ORRS R0, R0, R1
 				B    display_result 
-case_nor 
+case_9 ;NOR
+				;!(op1 OR op2) == !op1 AND !op2
 				MOVS R7, #0xFF
 				EORS R0, R0, R7
 				EORS R1, R1, R7
 				ANDS R0, R0, R1
 				B    display_result 
 				
-case_xnor 
+case_a ;XNOR
+				;!(op1 XOR op2) == !op1 XOR !op2
 				MOVS R7, #0xFF
 				EORS R0, R0, R1
 				EORS R0, R0, R7
+				;EORS R1, R1, R7
 				
 				B    display_result 
 				
@@ -166,3 +170,4 @@ display_result  ; Display result on LEDs
 ; -- End of file
 ; -------------------------------------------------------------------                      
                 END
+
